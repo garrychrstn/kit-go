@@ -1,0 +1,9 @@
+BEGIN;
+CREATE TABLE IF NOT EXISTS logs (
+    id UUID DEFAULT uuidv7() PRIMARY KEY,
+    log_level VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    from_function TEXT NOT NULL,
+    created_at BIGINT DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
+);
+COMMIT;
