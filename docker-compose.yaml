@@ -1,0 +1,14 @@
+services:
+  migrate:
+    image: your-app
+    command: ["./migrate"] # or "go run migrate/main.go"
+    environment:
+      - DB_URL=${DB_URL}
+    depends_on:
+      - postgres
+
+  app:
+    image: your-app
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
