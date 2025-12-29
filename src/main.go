@@ -34,17 +34,27 @@ func runMigrations(dbURL string) error {
 }
 func main() {
 	ctx := context.Background()
-	dbUrl := ""
-	if err := godotenv.Load(".env.local"); err != nil {
+
+	// Load env file if it exists (local dev)
+	isLocal := godotenv.Load(".env.local") == nil
+
+	if isLocal {
+		fmt.Println("================================DEVELOPMENT MODE==================================")
+	} else {
 		fmt.Printf("================================%s MODE==================================\n", os.Getenv("ENVI"))
-		dbUrl = os.Getenv("DB_URL")
+	}
+
+	dbUrl := os.Getenv("DB_URL")
+	if dbUrl == "" {
+		log.Fatal("DB_URL environment variable is not set")
+	}
+
+	// Run migrations in non-local environments
+	if !isLocal {
 		fmt.Printf("Running migrations to %s...\n", dbUrl)
 		if err := runMigrations(dbUrl); err != nil {
 			log.Fatalf("Migration failed: %v", err)
 		}
-	} else {
-		fmt.Println("================================DEVELOPMENT MODE==================================")
-		dbUrl = os.Getenv("DB_URL")
 	}
 	dbPool, err := pgxpool.New(ctx, dbUrl)
 	if err != nil {
