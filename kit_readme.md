@@ -6,7 +6,7 @@
 
 #2 Preparation
 
-0. Replace entire repository `github.com/garrychrstn/kit-go` with your own module name.
+0. Replace entire repository `github.com/dirental/core` with your own module name.
 1. Install sqlc (snap)
 `sudo snap install sqlc`
 

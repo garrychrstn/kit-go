@@ -5,21 +5,242 @@
 package db
 
 import (
+	"database/sql/driver"
+	"encoding/json"
+	"fmt"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type Log struct {
-	ID           pgtype.UUID `json:"id"`
-	LogLevel     string      `json:"log_level"`
-	Description  string      `json:"description"`
-	FromFunction string      `json:"from_function"`
-	CreatedAt    pgtype.Int8 `json:"created_at"`
+type EnumPaymentPurpose string
+
+const (
+	EnumPaymentPurposeDeposit EnumPaymentPurpose = "deposit"
+	EnumPaymentPurposeClose   EnumPaymentPurpose = "close"
+)
+
+func (e *EnumPaymentPurpose) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = EnumPaymentPurpose(s)
+	case string:
+		*e = EnumPaymentPurpose(s)
+	default:
+		return fmt.Errorf("unsupported scan type for EnumPaymentPurpose: %T", src)
+	}
+	return nil
+}
+
+type NullEnumPaymentPurpose struct {
+	EnumPaymentPurpose EnumPaymentPurpose `json:"enum_payment_purpose"`
+	Valid              bool               `json:"valid"` // Valid is true if EnumPaymentPurpose is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullEnumPaymentPurpose) Scan(value interface{}) error {
+	if value == nil {
+		ns.EnumPaymentPurpose, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.EnumPaymentPurpose.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullEnumPaymentPurpose) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.EnumPaymentPurpose), nil
+}
+
+type EnumPenaltyStatus string
+
+const (
+	EnumPenaltyStatusPending   EnumPenaltyStatus = "pending"
+	EnumPenaltyStatusProgress  EnumPenaltyStatus = "progress"
+	EnumPenaltyStatusCompleted EnumPenaltyStatus = "completed"
+)
+
+func (e *EnumPenaltyStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = EnumPenaltyStatus(s)
+	case string:
+		*e = EnumPenaltyStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for EnumPenaltyStatus: %T", src)
+	}
+	return nil
+}
+
+type NullEnumPenaltyStatus struct {
+	EnumPenaltyStatus EnumPenaltyStatus `json:"enum_penalty_status"`
+	Valid             bool              `json:"valid"` // Valid is true if EnumPenaltyStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullEnumPenaltyStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.EnumPenaltyStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.EnumPenaltyStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullEnumPenaltyStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.EnumPenaltyStatus), nil
+}
+
+type Branch struct {
+	ID          pgtype.UUID `json:"id"`
+	Name        string      `json:"name"`
+	Code        pgtype.Text `json:"code"`
+	Map         pgtype.Text `json:"map"`
+	Address     pgtype.Text `json:"address"`
+	Description pgtype.Text `json:"description"`
+	OfStore     pgtype.UUID `json:"of_store"`
+	CreatedAt   pgtype.Int8 `json:"created_at"`
+}
+
+type Customer struct {
+	ID        pgtype.UUID     `json:"id"`
+	Name      string          `json:"name"`
+	Email     pgtype.Text     `json:"email"`
+	Phone     string          `json:"phone"`
+	Contact   json.RawMessage `json:"contact"`
+	Address   string          `json:"address"`
+	Zip       string          `json:"zip"`
+	CreatedAt pgtype.Int8     `json:"created_at"`
+	UpdatedAt pgtype.Int8     `json:"updated_at"`
+}
+
+type Payment struct {
+	ID         pgtype.UUID        `json:"id"`
+	OfRent     pgtype.UUID        `json:"of_rent"`
+	OfCustomer pgtype.UUID        `json:"of_customer"`
+	OfBranch   pgtype.UUID        `json:"of_branch"`
+	OfPenalty  pgtype.UUID        `json:"of_penalty"`
+	Purpose    EnumPaymentPurpose `json:"purpose"`
+	Amount     int32              `json:"amount"`
+	Notes      pgtype.Text        `json:"notes"`
+	CreatedAt  pgtype.Int8        `json:"created_at"`
+	UpdatedAt  pgtype.Int8        `json:"updated_at"`
+}
+
+type Penalty struct {
+	ID          pgtype.UUID       `json:"id"`
+	OfRent      pgtype.UUID       `json:"of_rent"`
+	Amount      int32             `json:"amount"`
+	Description string            `json:"description"`
+	Attachments []string          `json:"attachments"`
+	Resolution  string            `json:"resolution"`
+	Status      EnumPenaltyStatus `json:"status"`
+	DateStart   int64             `json:"date_start"`
+	DateEnd     int64             `json:"date_end"`
+	CreatedAt   pgtype.Int8       `json:"created_at"`
+	UpdatedAt   pgtype.Int8       `json:"updated_at"`
+}
+
+type Permission struct {
+	ID          pgtype.UUID `json:"id"`
+	Action      string      `json:"action"`
+	Description pgtype.Text `json:"description"`
+}
+
+type Product struct {
+	ID            pgtype.UUID     `json:"id"`
+	Name          string          `json:"name"`
+	Description   pgtype.Text     `json:"description"`
+	Price         int32           `json:"price"`
+	Category      pgtype.Text     `json:"category"`
+	Specification json.RawMessage `json:"specification"`
+	OfStore       pgtype.UUID     `json:"of_store"`
+	CreatedAt     int64           `json:"created_at"`
+}
+
+type ProductAvailability struct {
+	ID        pgtype.UUID `json:"id"`
+	OfProduct pgtype.UUID `json:"of_product"`
+	OfStore   pgtype.UUID `json:"of_store"`
+	OfBranch  pgtype.UUID `json:"of_branch"`
+	Price     int32       `json:"price"`
+	Quantity  int32       `json:"quantity"`
+	CreatedAt int64       `json:"created_at"`
+}
+
+type RelRentProduct struct {
+	ID        pgtype.UUID `json:"id"`
+	OfRent    pgtype.UUID `json:"of_rent"`
+	OfProduct pgtype.UUID `json:"of_product"`
+	Price     int32       `json:"price"`
+	Qty       int32       `json:"qty"`
+}
+
+type RelRolePermission struct {
+	OfRole       pgtype.UUID `json:"of_role"`
+	OfPermission pgtype.UUID `json:"of_permission"`
+}
+
+type Rent struct {
+	ID         pgtype.UUID `json:"id"`
+	DateOrder  pgtype.Int8 `json:"date_order"`
+	DateStart  pgtype.Int8 `json:"date_start"`
+	DateEnd    pgtype.Int8 `json:"date_end"`
+	OfCustomer pgtype.UUID `json:"of_customer"`
+	OfStore    pgtype.UUID `json:"of_store"`
+	OfBranch   pgtype.UUID `json:"of_branch"`
+	CreatedAt  pgtype.Int8 `json:"created_at"`
+	UpdatedAt  pgtype.Int8 `json:"updated_at"`
+}
+
+type RentContract struct {
+	ID        pgtype.UUID `json:"id"`
+	OfRent    pgtype.UUID `json:"of_rent"`
+	OfStore   pgtype.UUID `json:"of_store"`
+	OfUser    pgtype.UUID `json:"of_user"`
+	Fileid    string      `json:"fileid"`
+	CreatedAt pgtype.Int8 `json:"created_at"`
+	UpdatedAt pgtype.Int8 `json:"updated_at"`
+}
+
+type Role struct {
+	ID        pgtype.UUID `json:"id"`
+	Name      string      `json:"name"`
+	OfStore   pgtype.UUID `json:"of_store"`
+	CreatedAt pgtype.Int8 `json:"created_at"`
+}
+
+type Store struct {
+	ID             pgtype.UUID     `json:"id"`
+	Name           string          `json:"name"`
+	Description    pgtype.Text     `json:"description"`
+	Logo           pgtype.Text     `json:"logo"`
+	Map            pgtype.Text     `json:"map"`
+	Coordinate     pgtype.Text     `json:"coordinate"`
+	Address        string          `json:"address"`
+	Phone          string          `json:"phone"`
+	IsActive       bool            `json:"is_active"`
+	Category       []string        `json:"category"`
+	Contacts       json.RawMessage `json:"contacts"`
+	TermAndService string          `json:"term_and_service"`
+	CreatedAt      pgtype.Int8     `json:"created_at"`
+	OfOwner        pgtype.UUID     `json:"of_owner"`
 }
 
 type User struct {
-	ID        pgtype.UUID      `json:"id"`
-	Email     string           `json:"email"`
-	Username  string           `json:"username"`
-	Password  string           `json:"password"`
-	CreatedAt pgtype.Timestamp `json:"created_at"`
+	ID        pgtype.UUID `json:"id"`
+	Username  string      `json:"username"`
+	Email     string      `json:"email"`
+	Password  string      `json:"password"`
+	Name      string      `json:"name"`
+	IsActive  bool        `json:"is_active"`
+	OfStore   pgtype.UUID `json:"of_store"`
+	OfRole    pgtype.UUID `json:"of_role"`
+	CreatedAt pgtype.Int8 `json:"created_at"`
 }

@@ -1,8 +1,8 @@
 package routes
 
 import (
-	"github.com/garrychrstn/kit-go/db"
-	"github.com/garrychrstn/kit-go/src/controllers"
+	"github.com/dirental/core/db"
+	"github.com/dirental/core/src/controllers"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"

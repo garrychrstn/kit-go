@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/garrychrstn/kit-go/db"
-	"github.com/garrychrstn/kit-go/src/helpers"
-	"github.com/garrychrstn/kit-go/src/types"
+	"github.com/dirental/core/db"
+	"github.com/dirental/core/src/helpers"
+	"github.com/dirental/core/src/types"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"

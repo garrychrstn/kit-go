@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/garrychrstn/kit-go/db"
-	"github.com/garrychrstn/kit-go/src/routes"
+	"github.com/dirental/core/db"
+	"github.com/dirental/core/src/routes"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -20,7 +20,6 @@ import (
 func main() {
 	ctx := context.Background()
 
-	// Load env file if it exists (local dev)
 	isLocal := godotenv.Load(".env.local") == nil
 
 	if isLocal {

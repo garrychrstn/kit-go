@@ -7,10 +7,12 @@ package db
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, username, password, created_at FROM users WHERE email = $1 LIMIT 1
+SELECT id, username, email, password, name, is_active, of_store, of_role, created_at FROM users WHERE email = $1 LIMIT 1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
@@ -18,16 +20,20 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Email,
 		&i.Username,
+		&i.Email,
 		&i.Password,
+		&i.Name,
+		&i.IsActive,
+		&i.OfStore,
+		&i.OfRole,
 		&i.CreatedAt,
 	)
 	return i, err
 }
 
 const getUserByUsername = `-- name: GetUserByUsername :one
-SELECT id, email, username, password, created_at FROM users WHERE username = $1 LIMIT 1
+SELECT id, username, email, password, name, is_active, of_store, of_role, created_at FROM users WHERE username = $1 LIMIT 1
 `
 
 func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
@@ -35,9 +41,52 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 	var i User
 	err := row.Scan(
 		&i.ID,
-		&i.Email,
 		&i.Username,
+		&i.Email,
 		&i.Password,
+		&i.Name,
+		&i.IsActive,
+		&i.OfStore,
+		&i.OfRole,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const setupTenantUser = `-- name: SetupTenantUser :one
+INSERT INTO users (username, email, password, name, of_store, of_role)
+VALUES ($1, $2, $3, $4, $5, $6)
+RETURNING id, username, email, password, name, is_active, of_store, of_role, created_at
+`
+
+type SetupTenantUserParams struct {
+	Username string      `json:"username"`
+	Email    string      `json:"email"`
+	Password string      `json:"password"`
+	Name     string      `json:"name"`
+	OfStore  pgtype.UUID `json:"of_store"`
+	OfRole   pgtype.UUID `json:"of_role"`
+}
+
+func (q *Queries) SetupTenantUser(ctx context.Context, arg SetupTenantUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, setupTenantUser,
+		arg.Username,
+		arg.Email,
+		arg.Password,
+		arg.Name,
+		arg.OfStore,
+		arg.OfRole,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.Password,
+		&i.Name,
+		&i.IsActive,
+		&i.OfStore,
+		&i.OfRole,
 		&i.CreatedAt,
 	)
 	return i, err

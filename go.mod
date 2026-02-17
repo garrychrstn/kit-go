@@ -1,4 +1,4 @@
-module github.com/garrychrstn/kit-go
+module github.com/dirental/core
 
 go 1.25.1
 
