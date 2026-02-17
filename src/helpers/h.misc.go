@@ -52,11 +52,11 @@ func ValidateRequest[T any](c *gin.Context) (*T, error) {
 			}
 		}
 
-		fmt.Print(err)
 		c.JSON(400, gin.H{
 			"error":  "validation",
 			"fields": validationFields,
 		})
+		c.Abort()
 		return nil, err
 	}
 	return &data, nil

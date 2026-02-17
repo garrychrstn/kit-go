@@ -98,26 +98,26 @@ func (ns NullEnumPenaltyStatus) Value() (driver.Value, error) {
 }
 
 type Branch struct {
-	ID          pgtype.UUID `json:"id"`
-	Name        string      `json:"name"`
-	Code        pgtype.Text `json:"code"`
-	Map         pgtype.Text `json:"map"`
-	Address     pgtype.Text `json:"address"`
-	Description pgtype.Text `json:"description"`
-	OfStore     pgtype.UUID `json:"of_store"`
-	CreatedAt   pgtype.Int8 `json:"created_at"`
+	ID          pgtype.UUID        `json:"id"`
+	Name        string             `json:"name"`
+	Code        pgtype.Text        `json:"code"`
+	Map         pgtype.Text        `json:"map"`
+	Address     pgtype.Text        `json:"address"`
+	Description pgtype.Text        `json:"description"`
+	OfStore     pgtype.UUID        `json:"of_store"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 }
 
 type Customer struct {
-	ID        pgtype.UUID     `json:"id"`
-	Name      string          `json:"name"`
-	Email     pgtype.Text     `json:"email"`
-	Phone     string          `json:"phone"`
-	Contact   json.RawMessage `json:"contact"`
-	Address   string          `json:"address"`
-	Zip       string          `json:"zip"`
-	CreatedAt pgtype.Int8     `json:"created_at"`
-	UpdatedAt pgtype.Int8     `json:"updated_at"`
+	ID        pgtype.UUID        `json:"id"`
+	Name      string             `json:"name"`
+	Email     pgtype.Text        `json:"email"`
+	Phone     string             `json:"phone"`
+	Contact   json.RawMessage    `json:"contact"`
+	Address   string             `json:"address"`
+	Zip       string             `json:"zip"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
 }
 
 type Payment struct {
@@ -129,22 +129,22 @@ type Payment struct {
 	Purpose    EnumPaymentPurpose `json:"purpose"`
 	Amount     int32              `json:"amount"`
 	Notes      pgtype.Text        `json:"notes"`
-	CreatedAt  pgtype.Int8        `json:"created_at"`
-	UpdatedAt  pgtype.Int8        `json:"updated_at"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt  pgtype.Timestamptz `json:"updated_at"`
 }
 
 type Penalty struct {
-	ID          pgtype.UUID       `json:"id"`
-	OfRent      pgtype.UUID       `json:"of_rent"`
-	Amount      int32             `json:"amount"`
-	Description string            `json:"description"`
-	Attachments []string          `json:"attachments"`
-	Resolution  string            `json:"resolution"`
-	Status      EnumPenaltyStatus `json:"status"`
-	DateStart   int64             `json:"date_start"`
-	DateEnd     int64             `json:"date_end"`
-	CreatedAt   pgtype.Int8       `json:"created_at"`
-	UpdatedAt   pgtype.Int8       `json:"updated_at"`
+	ID          pgtype.UUID        `json:"id"`
+	OfRent      pgtype.UUID        `json:"of_rent"`
+	Amount      int32              `json:"amount"`
+	Description string             `json:"description"`
+	Attachments []string           `json:"attachments"`
+	Resolution  string             `json:"resolution"`
+	Status      EnumPenaltyStatus  `json:"status"`
+	DateStart   int64              `json:"date_start"`
+	DateEnd     int64              `json:"date_end"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
 }
 
 type Permission struct {
@@ -154,24 +154,24 @@ type Permission struct {
 }
 
 type Product struct {
-	ID            pgtype.UUID     `json:"id"`
-	Name          string          `json:"name"`
-	Description   pgtype.Text     `json:"description"`
-	Price         int32           `json:"price"`
-	Category      pgtype.Text     `json:"category"`
-	Specification json.RawMessage `json:"specification"`
-	OfStore       pgtype.UUID     `json:"of_store"`
-	CreatedAt     int64           `json:"created_at"`
+	ID            pgtype.UUID        `json:"id"`
+	Name          string             `json:"name"`
+	Description   pgtype.Text        `json:"description"`
+	Price         int32              `json:"price"`
+	Category      pgtype.Text        `json:"category"`
+	Specification json.RawMessage    `json:"specification"`
+	OfStore       pgtype.UUID        `json:"of_store"`
+	CreatedAt     pgtype.Timestamptz `json:"created_at"`
 }
 
 type ProductAvailability struct {
-	ID        pgtype.UUID `json:"id"`
-	OfProduct pgtype.UUID `json:"of_product"`
-	OfStore   pgtype.UUID `json:"of_store"`
-	OfBranch  pgtype.UUID `json:"of_branch"`
-	Price     int32       `json:"price"`
-	Quantity  int32       `json:"quantity"`
-	CreatedAt int64       `json:"created_at"`
+	ID        pgtype.UUID        `json:"id"`
+	OfProduct pgtype.UUID        `json:"of_product"`
+	OfStore   pgtype.UUID        `json:"of_store"`
+	OfBranch  pgtype.UUID        `json:"of_branch"`
+	Price     int32              `json:"price"`
+	Quantity  int32              `json:"quantity"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
 type RelRentProduct struct {
@@ -188,59 +188,60 @@ type RelRolePermission struct {
 }
 
 type Rent struct {
-	ID         pgtype.UUID `json:"id"`
-	DateOrder  pgtype.Int8 `json:"date_order"`
-	DateStart  pgtype.Int8 `json:"date_start"`
-	DateEnd    pgtype.Int8 `json:"date_end"`
-	OfCustomer pgtype.UUID `json:"of_customer"`
-	OfStore    pgtype.UUID `json:"of_store"`
-	OfBranch   pgtype.UUID `json:"of_branch"`
-	CreatedAt  pgtype.Int8 `json:"created_at"`
-	UpdatedAt  pgtype.Int8 `json:"updated_at"`
+	ID         pgtype.UUID        `json:"id"`
+	DateOrder  pgtype.Int8        `json:"date_order"`
+	DateStart  pgtype.Int8        `json:"date_start"`
+	DateEnd    pgtype.Int8        `json:"date_end"`
+	OfCustomer pgtype.UUID        `json:"of_customer"`
+	OfStore    pgtype.UUID        `json:"of_store"`
+	OfBranch   pgtype.UUID        `json:"of_branch"`
+	CreatedAt  pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt  pgtype.Timestamptz `json:"updated_at"`
 }
 
 type RentContract struct {
-	ID        pgtype.UUID `json:"id"`
-	OfRent    pgtype.UUID `json:"of_rent"`
-	OfStore   pgtype.UUID `json:"of_store"`
-	OfUser    pgtype.UUID `json:"of_user"`
-	Fileid    string      `json:"fileid"`
-	CreatedAt pgtype.Int8 `json:"created_at"`
-	UpdatedAt pgtype.Int8 `json:"updated_at"`
+	ID        pgtype.UUID        `json:"id"`
+	OfRent    pgtype.UUID        `json:"of_rent"`
+	OfStore   pgtype.UUID        `json:"of_store"`
+	OfUser    pgtype.UUID        `json:"of_user"`
+	Fileid    string             `json:"fileid"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
 }
 
 type Role struct {
-	ID        pgtype.UUID `json:"id"`
-	Name      string      `json:"name"`
-	OfStore   pgtype.UUID `json:"of_store"`
-	CreatedAt pgtype.Int8 `json:"created_at"`
+	ID        pgtype.UUID        `json:"id"`
+	Name      string             `json:"name"`
+	OfStore   pgtype.UUID        `json:"of_store"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
 type Store struct {
-	ID             pgtype.UUID     `json:"id"`
-	Name           string          `json:"name"`
-	Description    pgtype.Text     `json:"description"`
-	Logo           pgtype.Text     `json:"logo"`
-	Map            pgtype.Text     `json:"map"`
-	Coordinate     pgtype.Text     `json:"coordinate"`
-	Address        string          `json:"address"`
-	Phone          string          `json:"phone"`
-	IsActive       bool            `json:"is_active"`
-	Category       []string        `json:"category"`
-	Contacts       json.RawMessage `json:"contacts"`
-	TermAndService string          `json:"term_and_service"`
-	CreatedAt      pgtype.Int8     `json:"created_at"`
-	OfOwner        pgtype.UUID     `json:"of_owner"`
+	ID             pgtype.UUID        `json:"id"`
+	Name           string             `json:"name"`
+	Description    pgtype.Text        `json:"description"`
+	Logo           pgtype.Text        `json:"logo"`
+	Map            pgtype.Text        `json:"map"`
+	Coordinate     pgtype.Text        `json:"coordinate"`
+	Address        string             `json:"address"`
+	Phone          string             `json:"phone"`
+	IsActive       bool               `json:"is_active"`
+	Category       []string           `json:"category"`
+	Contacts       json.RawMessage    `json:"contacts"`
+	TermAndService string             `json:"term_and_service"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	OfOwner        pgtype.UUID        `json:"of_owner"`
 }
 
 type User struct {
-	ID        pgtype.UUID `json:"id"`
-	Username  string      `json:"username"`
-	Email     string      `json:"email"`
-	Password  string      `json:"password"`
-	Name      string      `json:"name"`
-	IsActive  bool        `json:"is_active"`
-	OfStore   pgtype.UUID `json:"of_store"`
-	OfRole    pgtype.UUID `json:"of_role"`
-	CreatedAt pgtype.Int8 `json:"created_at"`
+	ID          pgtype.UUID        `json:"id"`
+	Username    string             `json:"username"`
+	Email       string             `json:"email"`
+	Password    string             `json:"password"`
+	Name        string             `json:"name"`
+	PhoneNumber string             `json:"phone_number"`
+	IsActive    bool               `json:"is_active"`
+	OfStore     pgtype.UUID        `json:"of_store"`
+	OfRole      pgtype.UUID        `json:"of_role"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 }

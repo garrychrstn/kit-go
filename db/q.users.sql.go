@@ -12,7 +12,7 @@ import (
 )
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, username, email, password, name, is_active, of_store, of_role, created_at FROM users WHERE email = $1 LIMIT 1
+SELECT id, username, email, password, name, phone_number, is_active, of_store, of_role, created_at FROM users WHERE email = $1 LIMIT 1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
@@ -24,6 +24,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.Email,
 		&i.Password,
 		&i.Name,
+		&i.PhoneNumber,
 		&i.IsActive,
 		&i.OfStore,
 		&i.OfRole,
@@ -33,7 +34,7 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 }
 
 const getUserByUsername = `-- name: GetUserByUsername :one
-SELECT id, username, email, password, name, is_active, of_store, of_role, created_at FROM users WHERE username = $1 LIMIT 1
+SELECT id, username, email, password, name, phone_number, is_active, of_store, of_role, created_at FROM users WHERE username = $1 LIMIT 1
 `
 
 func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User, error) {
@@ -45,6 +46,43 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 		&i.Email,
 		&i.Password,
 		&i.Name,
+		&i.PhoneNumber,
+		&i.IsActive,
+		&i.OfStore,
+		&i.OfRole,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const registerUser = `-- name: RegisterUser :one
+INSERT INTO users (email, password, name, username)
+VALUES ($1, $2, $3, $4)
+RETURNING id, username, email, password, name, phone_number, is_active, of_store, of_role, created_at
+`
+
+type RegisterUserParams struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Name     string `json:"name"`
+	Username string `json:"username"`
+}
+
+func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, registerUser,
+		arg.Email,
+		arg.Password,
+		arg.Name,
+		arg.Username,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.Password,
+		&i.Name,
+		&i.PhoneNumber,
 		&i.IsActive,
 		&i.OfStore,
 		&i.OfRole,
@@ -56,7 +94,7 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 const setupTenantUser = `-- name: SetupTenantUser :one
 INSERT INTO users (username, email, password, name, of_store, of_role)
 VALUES ($1, $2, $3, $4, $5, $6)
-RETURNING id, username, email, password, name, is_active, of_store, of_role, created_at
+RETURNING id, username, email, password, name, phone_number, is_active, of_store, of_role, created_at
 `
 
 type SetupTenantUserParams struct {
@@ -84,6 +122,7 @@ func (q *Queries) SetupTenantUser(ctx context.Context, arg SetupTenantUserParams
 		&i.Email,
 		&i.Password,
 		&i.Name,
+		&i.PhoneNumber,
 		&i.IsActive,
 		&i.OfStore,
 		&i.OfRole,

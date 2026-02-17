@@ -24,7 +24,45 @@ func AuthController(queries *db.Queries, pool *pgxpool.Pool) *IAuthController {
 }
 
 func (q *IAuthController) Register(c *gin.Context) {
+	data, err := helpers.ValidateRequest[types.IRequestRegister](c)
 
+	if err != nil {
+		return
+	}
+
+	if data.ConfirmPassword != data.Password {
+		c.JSON(400, gin.H{
+			"error": "validation",
+			"fields": map[string]string{
+				"confirm_password": "Passwords do not match",
+			},
+		})
+		return
+	}
+	user := db.RegisterUserParams{
+		Email:    data.Email,
+		Password: data.Password,
+		Name:     data.Name,
+		Username: data.Username,
+	}
+	dbUser, err := q.queries.RegisterUser(c.Request.Context(), user)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error":   "general",
+			"message": "failed to register user",
+		})
+		return
+	}
+
+	c.JSON(201, gin.H{
+		"ok":      true,
+		"message": "User registered successfully",
+		"data": gin.H{
+			"id":       dbUser.ID,
+			"username": dbUser.Username,
+			"email":    dbUser.Email,
+		},
+	})
 }
 
 func (q *IAuthController) Login(c *gin.Context) {

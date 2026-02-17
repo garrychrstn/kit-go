@@ -6,6 +6,14 @@ type IRequestLogin struct {
 	Age             int    `json:"age" binding:"required,gt=10,max=150"`
 }
 
+type IRequestRegister struct {
+	Email           string `json:"email" binding:"required"`
+	Password        string `json:"password" binding:"required"`
+	ConfirmPassword string `json:"confirm_password" binding:"required"`
+	Name            string `json:"name" binding:"required"`
+	Username        string `json:"username" binding:"required"`
+}
+
 type IPartUser struct {
 	Email           string `json:"email" binding:"required"`
 	Password        string `json:"password" binding:"required"`
