@@ -10,9 +10,8 @@ import (
 
 func SetupAuthRoutes(router *gin.Engine, queries *db.Queries, pool *pgxpool.Pool) {
 	api := router.Group("/v1/auth")
-	con := controllers.NewAuthController(queries, pool)
+	con := controllers.AuthController(queries, pool)
 	{
 		api.POST("/login", con.Login)
-		api.POST("/whoami", con.WhoAmI)
 	}
 }

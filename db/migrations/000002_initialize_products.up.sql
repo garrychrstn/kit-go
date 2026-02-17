@@ -7,7 +7,7 @@ CREATE TABLE products (
     category VARCHAR(50),
     specification JSONB DEFAULT '{}' NOT NULL,
     of_store UUID REFERENCES stores(id) NOT NULL,
-    created_at BIGINT DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
 );
 CREATE TABLE product_availabilities (
     id UUID DEFAULT uuidv7() PRIMARY KEY,
@@ -16,6 +16,6 @@ CREATE TABLE product_availabilities (
     of_branch UUID REFERENCES branches(id) NOT NULL,
     price INTEGER DEFAULT 0 NOT NULL,
     quantity INTEGER DEFAULT 0 NOT NULL,
-    created_at BIGINT DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT NOT NULL
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
 );
 COMMIT;

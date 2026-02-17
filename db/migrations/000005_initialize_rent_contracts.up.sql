@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS rent_contracts (
     of_store UUID NOT NULL references stores(id),
     of_user UUID NOT NULL references users(id),
     fileId VARCHAR(1000) NOT NULL,
-    created_at BIGINT DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT,
-    updated_at BIGINT DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE
 );
 COMMIT;

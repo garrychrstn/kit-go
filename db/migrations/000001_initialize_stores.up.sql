@@ -13,7 +13,7 @@ CREATE TABLE stores (
     category VARCHAR(20)[] NOT NULL DEFAULT '{}',
     contacts JSONB DEFAULT '{}' NOT NULL,
     term_and_service TEXT NOT NULL,
-    created_at BIGINT DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
 );
 
 CREATE TABLE branches (
@@ -24,7 +24,7 @@ CREATE TABLE branches (
     address VARCHAR(1000),
     description VARCHAR(1000),
     of_store UUID REFERENCES stores(id),
-    created_at BIGINT DEFAULT (EXTRACT(EPOCH FROM NOW()) * 1000)::BIGINT
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
 );
 
 COMMIT;

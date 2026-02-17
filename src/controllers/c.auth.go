@@ -14,20 +14,20 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type AuthController struct {
+type IAuthController struct {
 	queries *db.Queries
 	pool    *pgxpool.Pool
 }
 
-func NewAuthController(queries *db.Queries, pool *pgxpool.Pool) *AuthController {
-	return &AuthController{queries: queries, pool: pool}
+func AuthController(queries *db.Queries, pool *pgxpool.Pool) *IAuthController {
+	return &IAuthController{queries: queries, pool: pool}
 }
 
-func (q *AuthController) WhoAmI(c *gin.Context) {
+func (q *IAuthController) Register(c *gin.Context) {
 
 }
 
-func (q *AuthController) Login(c *gin.Context) {
+func (q *IAuthController) Login(c *gin.Context) {
 	data, err := helpers.ValidateRequest[types.IRequestLogin](c)
 	if err != nil {
 		return
