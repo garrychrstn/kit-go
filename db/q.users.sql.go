@@ -11,6 +11,37 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const getUserByAny = `-- name: GetUserByAny :one
+SELECT id, username, email, password, name, phone_number, is_active, of_store, of_role, created_at FROM users WHERE email = $1
+    OR username = $2
+    OR phone_number = $3
+    LIMIT 1
+`
+
+type GetUserByAnyParams struct {
+	Email       string      `json:"email"`
+	Username    string      `json:"username"`
+	PhoneNumber pgtype.Text `json:"phone_number"`
+}
+
+func (q *Queries) GetUserByAny(ctx context.Context, arg GetUserByAnyParams) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByAny, arg.Email, arg.Username, arg.PhoneNumber)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.Password,
+		&i.Name,
+		&i.PhoneNumber,
+		&i.IsActive,
+		&i.OfStore,
+		&i.OfRole,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT id, username, email, password, name, phone_number, is_active, of_store, of_role, created_at FROM users WHERE email = $1 LIMIT 1
 `
@@ -56,16 +87,17 @@ func (q *Queries) GetUserByUsername(ctx context.Context, username string) (User,
 }
 
 const registerUser = `-- name: RegisterUser :one
-INSERT INTO users (email, password, name, username)
-VALUES ($1, $2, $3, $4)
+INSERT INTO users (email, password, name, username, phone_number)
+VALUES ($1, $2, $3, $4, $5)
 RETURNING id, username, email, password, name, phone_number, is_active, of_store, of_role, created_at
 `
 
 type RegisterUserParams struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Name     string `json:"name"`
-	Username string `json:"username"`
+	Email       string      `json:"email"`
+	Password    string      `json:"password"`
+	Name        string      `json:"name"`
+	Username    string      `json:"username"`
+	PhoneNumber pgtype.Text `json:"phone_number"`
 }
 
 func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (User, error) {
@@ -74,6 +106,7 @@ func (q *Queries) RegisterUser(ctx context.Context, arg RegisterUserParams) (Use
 		arg.Password,
 		arg.Name,
 		arg.Username,
+		arg.PhoneNumber,
 	)
 	var i User
 	err := row.Scan(

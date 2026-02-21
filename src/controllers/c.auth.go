@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"log"
 	"os"
 	"strings"
 	"time"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -39,14 +41,35 @@ func (q *IAuthController) Register(c *gin.Context) {
 		})
 		return
 	}
+
 	user := db.RegisterUserParams{
-		Email:    data.Email,
-		Password: data.Password,
-		Name:     data.Name,
-		Username: data.Username,
+		Email:       data.Email,
+		Password:    data.Password,
+		Name:        data.Name,
+		Username:    data.Username,
+		PhoneNumber: pgtype.Text{String: data.PhoneNumber, Valid: true},
 	}
+
+	existingUser, err := q.queries.GetUserByAny(c.Request.Context(), db.GetUserByAnyParams{
+		Email: data.Email, Username: data.Username, PhoneNumber: pgtype.Text{String: data.PhoneNumber, Valid: true},
+	})
+
+	if existingUser.ID.Valid {
+		c.JSON(403, gin.H{
+			"error": "validation",
+			"fields": map[string]string{
+				"email":    "Email already exists",
+				"username": "Username already exists",
+				"phone":    "Phone number already exists",
+			},
+			"user": existingUser,
+		})
+		return
+	}
+
 	dbUser, err := q.queries.RegisterUser(c.Request.Context(), user)
 	if err != nil {
+		log.Println(err)
 		c.JSON(500, gin.H{
 			"error":   "general",
 			"message": "failed to register user",

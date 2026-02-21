@@ -239,7 +239,7 @@ type User struct {
 	Email       string             `json:"email"`
 	Password    string             `json:"password"`
 	Name        string             `json:"name"`
-	PhoneNumber string             `json:"phone_number"`
+	PhoneNumber pgtype.Text        `json:"phone_number"`
 	IsActive    bool               `json:"is_active"`
 	OfStore     pgtype.UUID        `json:"of_store"`
 	OfRole      pgtype.UUID        `json:"of_role"`
