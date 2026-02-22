@@ -3,11 +3,11 @@ package controllers
 import (
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	"github.com/dirental/core/db"
 	"github.com/dirental/core/src/helpers"
+	helperdb "github.com/dirental/core/src/helpers/db"
 	"github.com/dirental/core/src/types/requests"
 
 	"github.com/gin-gonic/gin"
@@ -41,10 +41,17 @@ func (q *IAuthController) Register(c *gin.Context) {
 		})
 		return
 	}
-
+	hashed, err := helperdb.PasswordHash(data.Password)
+	if err != nil {
+		c.JSON(500, gin.H{
+			"error":   "general",
+			"message": "failed to hash password",
+		})
+		return
+	}
 	user := db.RegisterUserParams{
 		Email:       data.Email,
-		Password:    data.Password,
+		Password:    hashed,
 		Name:        data.Name,
 		Username:    data.Username,
 		PhoneNumber: pgtype.Text{String: data.PhoneNumber, Valid: true},
@@ -94,11 +101,13 @@ func (q *IAuthController) Login(c *gin.Context) {
 		return
 	}
 	var dbUser db.User
-	if strings.Contains(data.UsernameOrEmail, "@") {
-		dbUser, err = q.queries.GetUserByEmail(c.Request.Context(), data.UsernameOrEmail)
-	} else {
-		dbUser, err = q.queries.GetUserByUsername(c.Request.Context(), data.UsernameOrEmail)
-	}
+	dbUser, err = q.queries.GetUserByAny(
+		c.Request.Context(),
+		db.GetUserByAnyParams{
+			Email:       data.UsernameOrEmail,
+			Username:    data.UsernameOrEmail,
+			PhoneNumber: helperdb.SafeString(&data.UsernameOrEmail),
+		})
 
 	if err != nil {
 		c.JSON(404, gin.H{
@@ -108,7 +117,7 @@ func (q *IAuthController) Login(c *gin.Context) {
 		return
 	}
 
-	if err := helpers.PasswordCompare(dbUser.Password, data.Password); err != nil {
+	if err := helperdb.PasswordCompare(dbUser.Password, data.Password); err != nil {
 		c.JSON(401, gin.H{"error": "Invalid credentials"})
 		return
 	}
@@ -141,7 +150,6 @@ func (q *IAuthController) Login(c *gin.Context) {
 		true,  // HttpOnly: as requested
 	)
 
-	// Return data in the response body, maintaining original response structure
 	c.JSON(200, gin.H{
 		"ok":      true,
 		"message": "Login successful",

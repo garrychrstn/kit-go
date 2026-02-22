@@ -9,7 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v5"
-	"golang.org/x/crypto/bcrypt"
 )
 
 func VerifyToken(string string) (*jwt.Token, jwt.MapClaims, error) {
@@ -60,13 +59,4 @@ func ValidateRequest[T any](c *gin.Context) (*T, error) {
 		return nil, err
 	}
 	return &data, nil
-}
-
-func PasswordHash(password string) (string, error) {
-	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
-	return string(bytes), err
-}
-
-func PasswordCompare(hashed, password string) error {
-	return bcrypt.CompareHashAndPassword([]byte(hashed), []byte(password))
 }

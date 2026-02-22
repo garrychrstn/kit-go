@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/dirental/core/db"
@@ -42,6 +43,5 @@ func (c *ITenantController) SetupStore(ctx *gin.Context) {
 		Description:    helperdb.SafeString(&data.Description),
 		TermAndService: data.TermAndService,
 	}
-	
-
+	fmt.Print(newTenant)
 }
