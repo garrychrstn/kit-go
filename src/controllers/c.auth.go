@@ -8,7 +8,7 @@ import (
 
 	"github.com/dirental/core/db"
 	"github.com/dirental/core/src/helpers"
-	"github.com/dirental/core/src/types"
+	"github.com/dirental/core/src/types/requests"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
@@ -26,7 +26,7 @@ func AuthController(queries *db.Queries, pool *pgxpool.Pool) *IAuthController {
 }
 
 func (q *IAuthController) Register(c *gin.Context) {
-	data, err := helpers.ValidateRequest[types.IRequestRegister](c)
+	data, err := helpers.ValidateRequest[requests.IRequestRegister](c)
 
 	if err != nil {
 		return
@@ -89,7 +89,7 @@ func (q *IAuthController) Register(c *gin.Context) {
 }
 
 func (q *IAuthController) Login(c *gin.Context) {
-	data, err := helpers.ValidateRequest[types.IRequestLogin](c)
+	data, err := helpers.ValidateRequest[requests.IRequestLogin](c)
 	if err != nil {
 		return
 	}

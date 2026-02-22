@@ -1,4 +1,4 @@
-package types
+package requests
 
 type IRequestLogin struct {
 	UsernameOrEmail string `json:"username_or_email" binding:"required"`

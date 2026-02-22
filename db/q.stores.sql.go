@@ -13,7 +13,7 @@ import (
 )
 
 const getStore = `-- name: GetStore :one
-SELECT id, name, description, logo, map, coordinate, address, phone, is_active, category, contacts, term_and_service, created_at, of_owner FROM stores WHERE id = $1
+SELECT id, name, description, logo, coordinate, address, phone, is_active, category, contacts, term_and_service, created_at, of_owner FROM stores WHERE id = $1
 `
 
 func (q *Queries) GetStore(ctx context.Context, id pgtype.UUID) (Store, error) {
@@ -24,7 +24,6 @@ func (q *Queries) GetStore(ctx context.Context, id pgtype.UUID) (Store, error) {
 		&i.Name,
 		&i.Description,
 		&i.Logo,
-		&i.Map,
 		&i.Coordinate,
 		&i.Address,
 		&i.Phone,
@@ -39,7 +38,7 @@ func (q *Queries) GetStore(ctx context.Context, id pgtype.UUID) (Store, error) {
 }
 
 const getStoreByName = `-- name: GetStoreByName :one
-SELECT id, name, description, logo, map, coordinate, address, phone, is_active, category, contacts, term_and_service, created_at, of_owner FROM stores WHERE name = $1
+SELECT id, name, description, logo, coordinate, address, phone, is_active, category, contacts, term_and_service, created_at, of_owner FROM stores WHERE name = $1
 `
 
 func (q *Queries) GetStoreByName(ctx context.Context, name string) (Store, error) {
@@ -50,7 +49,6 @@ func (q *Queries) GetStoreByName(ctx context.Context, name string) (Store, error
 		&i.Name,
 		&i.Description,
 		&i.Logo,
-		&i.Map,
 		&i.Coordinate,
 		&i.Address,
 		&i.Phone,
@@ -65,7 +63,7 @@ func (q *Queries) GetStoreByName(ctx context.Context, name string) (Store, error
 }
 
 const listStores = `-- name: ListStores :many
-SELECT id, name, description, logo, map, coordinate, address, phone, is_active, category, contacts, term_and_service, created_at, of_owner FROM stores ORDER BY created_at DESC
+SELECT id, name, description, logo, coordinate, address, phone, is_active, category, contacts, term_and_service, created_at, of_owner FROM stores ORDER BY created_at DESC
 `
 
 func (q *Queries) ListStores(ctx context.Context) ([]Store, error) {
@@ -82,7 +80,6 @@ func (q *Queries) ListStores(ctx context.Context) ([]Store, error) {
 			&i.Name,
 			&i.Description,
 			&i.Logo,
-			&i.Map,
 			&i.Coordinate,
 			&i.Address,
 			&i.Phone,
@@ -118,22 +115,22 @@ func (q *Queries) SetupStoreOwner(ctx context.Context, arg SetupStoreOwnerParams
 }
 
 const setupTenantStore = `-- name: SetupTenantStore :one
-INSERT INTO stores(name, description, logo, map, address, phone, category, contacts, of_owner, term_and_service)
+INSERT INTO stores(name, description, logo, address, phone, category, contacts, of_owner, term_and_service, coordinate)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-RETURNING id, name, description, logo, map, coordinate, address, phone, is_active, category, contacts, term_and_service, created_at, of_owner
+RETURNING id, name, description, logo, coordinate, address, phone, is_active, category, contacts, term_and_service, created_at, of_owner
 `
 
 type SetupTenantStoreParams struct {
 	Name           string          `json:"name"`
 	Description    pgtype.Text     `json:"description"`
 	Logo           pgtype.Text     `json:"logo"`
-	Map            pgtype.Text     `json:"map"`
 	Address        string          `json:"address"`
 	Phone          string          `json:"phone"`
 	Category       []string        `json:"category"`
 	Contacts       json.RawMessage `json:"contacts"`
 	OfOwner        pgtype.UUID     `json:"of_owner"`
 	TermAndService string          `json:"term_and_service"`
+	Coordinate     pgtype.Text     `json:"coordinate"`
 }
 
 func (q *Queries) SetupTenantStore(ctx context.Context, arg SetupTenantStoreParams) (Store, error) {
@@ -141,13 +138,13 @@ func (q *Queries) SetupTenantStore(ctx context.Context, arg SetupTenantStorePara
 		arg.Name,
 		arg.Description,
 		arg.Logo,
-		arg.Map,
 		arg.Address,
 		arg.Phone,
 		arg.Category,
 		arg.Contacts,
 		arg.OfOwner,
 		arg.TermAndService,
+		arg.Coordinate,
 	)
 	var i Store
 	err := row.Scan(
@@ -155,7 +152,6 @@ func (q *Queries) SetupTenantStore(ctx context.Context, arg SetupTenantStorePara
 		&i.Name,
 		&i.Description,
 		&i.Logo,
-		&i.Map,
 		&i.Coordinate,
 		&i.Address,
 		&i.Phone,

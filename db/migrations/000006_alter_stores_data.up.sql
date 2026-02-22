@@ -1,0 +1,4 @@
+BEGIN;
+ALTER TABLE stores
+DROP COLUMN map;
+COMMIT;

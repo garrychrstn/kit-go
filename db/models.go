@@ -221,7 +221,6 @@ type Store struct {
 	Name           string             `json:"name"`
 	Description    pgtype.Text        `json:"description"`
 	Logo           pgtype.Text        `json:"logo"`
-	Map            pgtype.Text        `json:"map"`
 	Coordinate     pgtype.Text        `json:"coordinate"`
 	Address        string             `json:"address"`
 	Phone          string             `json:"phone"`
