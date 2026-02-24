@@ -14,4 +14,5 @@ func AuthRoutes(router *gin.Engine, queries *db.Queries, pool *pgxpool.Pool) {
 
 	api.POST("/login", con.Login)
 	api.POST("/register", con.Register)
+	api.GET("/logout", con.Logout)
 }

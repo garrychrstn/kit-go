@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/dirental/core/db"
@@ -13,19 +12,18 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-type ITenantController struct {
+type IStoreController struct {
 	queries *db.Queries
 	pool    *pgxpool.Pool
 }
 
-func TenantController(queries *db.Queries, pool *pgxpool.Pool) *ITenantController {
-	return &ITenantController{
+func StoreController(queries *db.Queries, pool *pgxpool.Pool) *IStoreController {
+	return &IStoreController{
 		queries: queries,
 		pool:    pool,
 	}
 }
-
-func (c *ITenantController) SetupStore(ctx *gin.Context) {
+func (c *IStoreController) SetupStore(ctx *gin.Context) {
 	data, err := helpers.ValidateRequest[requests.IRequestCreateStore](ctx)
 
 	if err != nil {
@@ -41,7 +39,8 @@ func (c *ITenantController) SetupStore(ctx *gin.Context) {
 		Contacts:       data.Contacts,
 		CreatedAt:      pgtype.Timestamptz{Time: time.Now()},
 		Description:    helperdb.SafeString(&data.Description),
+		Category:       data.Category,
 		TermAndService: data.TermAndService,
 	}
-	fmt.Print(newTenant)
+	ctx.JSON(200, gin.H{"message": "Store created successfully", "tenant": newTenant})
 }

@@ -47,6 +47,7 @@ func main() {
 		AllowHeaders: []string{"Origin", "Content-Type", "Accept", "Authorization"},
 	}))
 	routes.AuthRoutes(r, queries, dbPool)
+	routes.StoreRoutes(r, queries, dbPool)
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"

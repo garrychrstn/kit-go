@@ -12,6 +12,57 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const createStore = `-- name: CreateStore :one
+INSERT INTO stores(name, description, logo, address, phone, category, contacts, of_owner, term_and_service, coordinate)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+RETURNING id, name, description, logo, coordinate, address, phone, is_active, category, contacts, term_and_service, created_at, of_owner
+`
+
+type CreateStoreParams struct {
+	Name           string          `json:"name"`
+	Description    pgtype.Text     `json:"description"`
+	Logo           pgtype.Text     `json:"logo"`
+	Address        string          `json:"address"`
+	Phone          string          `json:"phone"`
+	Category       []string        `json:"category"`
+	Contacts       json.RawMessage `json:"contacts"`
+	OfOwner        pgtype.UUID     `json:"of_owner"`
+	TermAndService string          `json:"term_and_service"`
+	Coordinate     pgtype.Text     `json:"coordinate"`
+}
+
+func (q *Queries) CreateStore(ctx context.Context, arg CreateStoreParams) (Store, error) {
+	row := q.db.QueryRow(ctx, createStore,
+		arg.Name,
+		arg.Description,
+		arg.Logo,
+		arg.Address,
+		arg.Phone,
+		arg.Category,
+		arg.Contacts,
+		arg.OfOwner,
+		arg.TermAndService,
+		arg.Coordinate,
+	)
+	var i Store
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Description,
+		&i.Logo,
+		&i.Coordinate,
+		&i.Address,
+		&i.Phone,
+		&i.IsActive,
+		&i.Category,
+		&i.Contacts,
+		&i.TermAndService,
+		&i.CreatedAt,
+		&i.OfOwner,
+	)
+	return i, err
+}
+
 const getStore = `-- name: GetStore :one
 SELECT id, name, description, logo, coordinate, address, phone, is_active, category, contacts, term_and_service, created_at, of_owner FROM stores WHERE id = $1
 `
@@ -98,69 +149,4 @@ func (q *Queries) ListStores(ctx context.Context) ([]Store, error) {
 		return nil, err
 	}
 	return items, nil
-}
-
-const setupStoreOwner = `-- name: SetupStoreOwner :exec
-UPDATE stores SET of_owner = $1 WHERE id = $2
-`
-
-type SetupStoreOwnerParams struct {
-	OfOwner pgtype.UUID `json:"of_owner"`
-	ID      pgtype.UUID `json:"id"`
-}
-
-func (q *Queries) SetupStoreOwner(ctx context.Context, arg SetupStoreOwnerParams) error {
-	_, err := q.db.Exec(ctx, setupStoreOwner, arg.OfOwner, arg.ID)
-	return err
-}
-
-const setupTenantStore = `-- name: SetupTenantStore :one
-INSERT INTO stores(name, description, logo, address, phone, category, contacts, of_owner, term_and_service, coordinate)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-RETURNING id, name, description, logo, coordinate, address, phone, is_active, category, contacts, term_and_service, created_at, of_owner
-`
-
-type SetupTenantStoreParams struct {
-	Name           string          `json:"name"`
-	Description    pgtype.Text     `json:"description"`
-	Logo           pgtype.Text     `json:"logo"`
-	Address        string          `json:"address"`
-	Phone          string          `json:"phone"`
-	Category       []string        `json:"category"`
-	Contacts       json.RawMessage `json:"contacts"`
-	OfOwner        pgtype.UUID     `json:"of_owner"`
-	TermAndService string          `json:"term_and_service"`
-	Coordinate     pgtype.Text     `json:"coordinate"`
-}
-
-func (q *Queries) SetupTenantStore(ctx context.Context, arg SetupTenantStoreParams) (Store, error) {
-	row := q.db.QueryRow(ctx, setupTenantStore,
-		arg.Name,
-		arg.Description,
-		arg.Logo,
-		arg.Address,
-		arg.Phone,
-		arg.Category,
-		arg.Contacts,
-		arg.OfOwner,
-		arg.TermAndService,
-		arg.Coordinate,
-	)
-	var i Store
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Description,
-		&i.Logo,
-		&i.Coordinate,
-		&i.Address,
-		&i.Phone,
-		&i.IsActive,
-		&i.Category,
-		&i.Contacts,
-		&i.TermAndService,
-		&i.CreatedAt,
-		&i.OfOwner,
-	)
-	return i, err
 }

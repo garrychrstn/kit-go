@@ -156,3 +156,20 @@ func (q *IAuthController) Login(c *gin.Context) {
 		"data":    dat,
 	})
 }
+
+func (q *IAuthController) Logout(c *gin.Context) {
+	c.SetCookie(
+		"jwt",
+		"", // Empty token string to clear the cookie
+		-1, // MaxAge set to -1 to delete the cookie
+		"/",
+		"",
+		false, // Secure: set to true in production with HTTPS
+		true,  // HttpOnly: as requested
+	)
+
+	c.JSON(200, gin.H{
+		"ok":      true,
+		"message": "Logout successful",
+	})
+}
