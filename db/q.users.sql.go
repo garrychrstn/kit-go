@@ -11,6 +11,28 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const getUser = `-- name: GetUser :one
+SELECT id, username, email, password, name, phone_number, is_active, of_store, of_role, created_at FROM users WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetUser(ctx context.Context, id pgtype.UUID) (User, error) {
+	row := q.db.QueryRow(ctx, getUser, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.Password,
+		&i.Name,
+		&i.PhoneNumber,
+		&i.IsActive,
+		&i.OfStore,
+		&i.OfRole,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getUserByAny = `-- name: GetUserByAny :one
 SELECT id, username, email, password, name, phone_number, is_active, of_store, of_role, created_at FROM users WHERE email = $1
     OR username = $2

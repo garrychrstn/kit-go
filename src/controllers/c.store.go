@@ -1,14 +1,14 @@
 package controllers
 
 import (
-	"time"
+	"log"
 
 	"github.com/dirental/core/db"
 	"github.com/dirental/core/src/helpers"
 	helperdb "github.com/dirental/core/src/helpers/db"
+	middleware "github.com/dirental/core/src/middlewares"
 	"github.com/dirental/core/src/types/requests"
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -25,22 +25,52 @@ func StoreController(queries *db.Queries, pool *pgxpool.Pool) *IStoreController 
 }
 func (c *IStoreController) SetupStore(ctx *gin.Context) {
 	data, err := helpers.ValidateRequest[requests.IRequestCreateStore](ctx)
-
 	if err != nil {
 		return
 	}
+	auth, err := middleware.GetAuthorized(ctx)
+	if err != nil {
+		log.Print(err)
+		ctx.JSON(401, gin.H{"error": "Unauthorized"})
+		return
+	}
+	userID, err := helperdb.StringToUUID(auth.UserID)
+	if err != nil {
+		log.Print(err)
+		ctx.JSON(400, gin.H{"error": "Invalid user ID"})
+		return
+	}
+	user, err := c.queries.GetUser(ctx, userID)
+	if err != nil {
+		log.Print(err)
+		ctx.JSON(404, gin.H{"error": "User not found"})
+		return
+	}
 
-	newTenant := db.Store{
+	store := db.CreateStoreParams{
 		Name:           data.Name,
 		Phone:          data.Phone,
 		Coordinate:     helperdb.SafeString(&data.Coordinate),
 		Address:        "Feature Needed",
 		IsActive:       false,
 		Contacts:       data.Contacts,
-		CreatedAt:      pgtype.Timestamptz{Time: time.Now()},
 		Description:    helperdb.SafeString(&data.Description),
 		Category:       data.Category,
 		TermAndService: data.TermAndService,
+		OfOwner:        user.ID,
+		Logo:           helperdb.SafeString(&data.Logo),
 	}
-	ctx.JSON(200, gin.H{"message": "Store created successfully", "tenant": newTenant})
+
+	newStore, err := c.queries.CreateStore(ctx, store)
+	if err != nil {
+		log.Print(err)
+		ctx.JSON(500, gin.H{"error": "Failed to create store"})
+		return
+	}
+
+	ctx.JSON(200, gin.H{
+		"message": "Store created successfully",
+		"tenant":  newStore,
+		"user":    user,
+	})
 }

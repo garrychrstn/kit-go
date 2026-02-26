@@ -3,6 +3,9 @@ INSERT INTO users (username, email, password, name, of_store, of_role)
 VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
 
+-- name: GetUser :one
+SELECT * FROM users WHERE id = $1 LIMIT 1;
+
 -- name: GetUserByAny :one
 SELECT * FROM users WHERE email = $1
     OR username = $2

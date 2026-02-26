@@ -39,22 +39,17 @@ func IsLoggedIn() gin.HandlerFunc {
 
 		// Set claims in context
 		c.Set("claims", claims)
-		c.Set("user", claims["user"])
-		c.Set("of_store", claims["of_store"])
-		c.Set("of_role", claims["of_role"])
 
 		c.Next()
 	}
 }
 
 type Claims struct {
-	User    string
-	OfRole  string
-	OfStore string
-	Exp     int64
+	UserEmail string
+	UserID    string
 }
 
-func GetClaims(c *gin.Context) (*Claims, error) {
+func GetAuthorized(c *gin.Context) (*Claims, error) {
 	claimsInterface, exists := c.Get("claims")
 	if !exists {
 		return nil, fmt.Errorf("no claims")
@@ -63,9 +58,7 @@ func GetClaims(c *gin.Context) (*Claims, error) {
 	mapClaims := claimsInterface.(jwt.MapClaims)
 
 	return &Claims{
-		User:    mapClaims["user"].(string),
-		OfRole:  mapClaims["of_role"].(string),
-		OfStore: mapClaims["of_store"].(string),
-		Exp:     int64(mapClaims["exp"].(float64)),
+		UserEmail: mapClaims["userEmail"].(string),
+		UserID:    mapClaims["userID"].(string),
 	}, nil
 }

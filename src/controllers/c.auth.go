@@ -125,8 +125,9 @@ func (q *IAuthController) Login(c *gin.Context) {
 	expirationTime := time.Now().Add(time.Hour * 24) // Token validity for 24 hours
 
 	claims := jwt.MapClaims{
-		"user": dbUser.Email,
-		"exp":  expirationTime.Unix(),
+		"userEmail": dbUser.Email,
+		"userID":    dbUser.ID,
+		"exp":       expirationTime.Unix(),
 	}
 	dat := gin.H{
 		"id":       dbUser.ID,

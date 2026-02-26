@@ -13,8 +13,8 @@ import (
 )
 
 const createStore = `-- name: CreateStore :one
-INSERT INTO stores(name, description, logo, address, phone, category, contacts, of_owner, term_and_service, coordinate)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+INSERT INTO stores(name, description, logo, address, phone, category, contacts, of_owner, term_and_service, coordinate, is_active)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 RETURNING id, name, description, logo, coordinate, address, phone, is_active, category, contacts, term_and_service, created_at, of_owner
 `
 
@@ -29,6 +29,7 @@ type CreateStoreParams struct {
 	OfOwner        pgtype.UUID     `json:"of_owner"`
 	TermAndService string          `json:"term_and_service"`
 	Coordinate     pgtype.Text     `json:"coordinate"`
+	IsActive       bool            `json:"is_active"`
 }
 
 func (q *Queries) CreateStore(ctx context.Context, arg CreateStoreParams) (Store, error) {
@@ -43,6 +44,7 @@ func (q *Queries) CreateStore(ctx context.Context, arg CreateStoreParams) (Store
 		arg.OfOwner,
 		arg.TermAndService,
 		arg.Coordinate,
+		arg.IsActive,
 	)
 	var i Store
 	err := row.Scan(
