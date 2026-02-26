@@ -15,6 +15,6 @@ func StoreRoutes(router *gin.Engine, queries *db.Queries, pool *pgxpool.Pool) {
 
 	api.Use(middleware.IsLoggedIn())
 
-	api.POST("/", con.CreateStore)
+	api.POST("", con.CreateStore)
 
 }
