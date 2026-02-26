@@ -43,7 +43,7 @@ func (c *IStoreController) CreateStore(ctx *gin.Context) {
 	user, err := c.queries.GetUser(ctx, userID)
 	if err != nil {
 		log.Print(err)
-		ctx.JSON(404, gin.H{"error": "User not found"})
+		ctx.JSON(404, gin.H{"error": "User not found", "auth": auth})
 		return
 	}
 

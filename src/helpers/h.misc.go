@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 func VerifyToken(string string) (*jwt.Token, jwt.MapClaims, error) {
@@ -59,4 +60,9 @@ func ValidateRequest[T any](c *gin.Context) (*T, error) {
 		return nil, err
 	}
 	return &data, nil
+}
+
+func GenerateUUID() string {
+	uuid := uuid.New().String()
+	return uuid
 }

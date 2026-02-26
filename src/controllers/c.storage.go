@@ -24,7 +24,7 @@ func StorageController(queries *db.Queries, pool *pgxpool.Pool) *TStorageControl
 	return &TStorageController{queries: queries, pool: pool}
 }
 
-func (c *TStorageController) Uploads() gin.HandlerFunc {
+func (c *TStorageController) GlobalUploads() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		form, err := c.MultipartForm()
 		if err != nil {
@@ -60,9 +60,11 @@ func (c *TStorageController) Uploads() gin.HandlerFunc {
 				}
 				defer file.Close()
 
+				key := helpers.GenerateUUID()
+
 				_, err = client.PutObject(context.TODO(), &s3.PutObjectInput{
 					Bucket:        aws.String(bucket),
-					Key:           aws.String(header.Filename),
+					Key:           aws.String(key),
 					Body:          file,
 					ContentLength: aws.Int64(header.Size),
 				})
@@ -71,7 +73,7 @@ func (c *TStorageController) Uploads() gin.HandlerFunc {
 					return
 				}
 
-				results[i] = result{Name: header.Filename}
+				results[i] = result{Name: key}
 			}(i, header)
 		}
 

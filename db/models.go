@@ -141,8 +141,8 @@ type Penalty struct {
 	Attachments []string           `json:"attachments"`
 	Resolution  string             `json:"resolution"`
 	Status      EnumPenaltyStatus  `json:"status"`
-	DateStart   int64              `json:"date_start"`
-	DateEnd     int64              `json:"date_end"`
+	DateStart   pgtype.Timestamptz `json:"date_start"`
+	DateEnd     pgtype.Timestamptz `json:"date_end"`
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
 }
@@ -189,9 +189,9 @@ type RelRolePermission struct {
 
 type Rent struct {
 	ID         pgtype.UUID        `json:"id"`
-	DateOrder  pgtype.Int8        `json:"date_order"`
-	DateStart  pgtype.Int8        `json:"date_start"`
-	DateEnd    pgtype.Int8        `json:"date_end"`
+	DateOrder  pgtype.Timestamptz `json:"date_order"`
+	DateStart  pgtype.Timestamptz `json:"date_start"`
+	DateEnd    pgtype.Timestamptz `json:"date_end"`
 	OfCustomer pgtype.UUID        `json:"of_customer"`
 	OfStore    pgtype.UUID        `json:"of_store"`
 	OfBranch   pgtype.UUID        `json:"of_branch"`
@@ -213,6 +213,14 @@ type Role struct {
 	ID        pgtype.UUID        `json:"id"`
 	Name      string             `json:"name"`
 	OfStore   pgtype.UUID        `json:"of_store"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+}
+
+type Storage struct {
+	ID        pgtype.UUID        `json:"id"`
+	Bucket    string             `json:"bucket"`
+	Path      string             `json:"path"`
+	Notes     pgtype.Text        `json:"notes"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
