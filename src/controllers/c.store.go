@@ -23,7 +23,7 @@ func StoreController(queries *db.Queries, pool *pgxpool.Pool) *IStoreController 
 		pool:    pool,
 	}
 }
-func (c *IStoreController) SetupStore(ctx *gin.Context) {
+func (c *IStoreController) CreateStore(ctx *gin.Context) {
 	data, err := helpers.ValidateRequest[requests.IRequestCreateStore](ctx)
 	if err != nil {
 		return

@@ -48,6 +48,7 @@ func main() {
 	}))
 	routes.AuthRoutes(r, queries, dbPool)
 	routes.StoreRoutes(r, queries, dbPool)
+	routes.ProductRoutes(r, queries, dbPool)
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
