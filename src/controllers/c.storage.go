@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/dirental/core/db"
 	"github.com/dirental/core/src/helpers"
+	middleware "github.com/dirental/core/src/middlewares"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -27,6 +28,14 @@ func StorageController(queries *db.Queries, pool *pgxpool.Pool) *TStorageControl
 func (c *TStorageController) GlobalUploads() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		form, err := c.MultipartForm()
+		auth, err := middleware.GetAuthorized(c)
+		if err != nil {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+			return
+		}
+
+		isTenant := len(auth.OfTenant) != 0
+
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid form"})
 			return
@@ -40,6 +49,11 @@ func (c *TStorageController) GlobalUploads() gin.HandlerFunc {
 
 		client := helpers.InitR2Client()
 		bucket := os.Getenv("OBJECT_BUCKET")
+		if isTenant {
+			bucket += "/tenants/" + auth.OfTenant
+		} else {
+			bucket += "/users/" + auth.UserID
+		}
 		type result struct {
 			Name  string `json:"name"`
 			Error string `json:"error,omitempty"`

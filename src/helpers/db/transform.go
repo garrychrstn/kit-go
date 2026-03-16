@@ -7,9 +7,11 @@ import (
 )
 
 func SafeString(value *string) pgtype.Text {
+	if value == nil {
+		return pgtype.Text{Valid: false}
+	}
 	return pgtype.Text{String: *value, Valid: true}
 }
-
 func PasswordHash(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), 14)
 	return string(bytes), err

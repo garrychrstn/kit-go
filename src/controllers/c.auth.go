@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -124,9 +125,11 @@ func (q *IAuthController) Login(c *gin.Context) {
 
 	expirationTime := time.Now().Add(time.Hour * 24) // Token validity for 24 hours
 
+	fmt.Print("store is", dbUser.OfStore)
 	claims := jwt.MapClaims{
 		"userEmail": dbUser.Email,
 		"userID":    dbUser.ID,
+		"ofTenant":  dbUser.OfStore,
 		"exp":       expirationTime.Unix(),
 	}
 	dat := gin.H{
@@ -170,7 +173,6 @@ func (q *IAuthController) Logout(c *gin.Context) {
 	)
 
 	c.JSON(200, gin.H{
-		"ok":      true,
-		"message": "Logout successful",
+		"ok": true, "message": "Logout successful",
 	})
 }

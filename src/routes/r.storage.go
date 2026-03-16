@@ -9,7 +9,7 @@ import (
 )
 
 func StorageRoutes(router *gin.Engine, queries *db.Queries, pool *pgxpool.Pool) {
-	api := router.Group("/v1/storage")
+	api := router.Group("/v1/storages")
 
 	con := controllers.StorageController(queries, pool)
 	api.Use(middleware.IsLoggedIn())

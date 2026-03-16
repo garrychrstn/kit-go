@@ -47,6 +47,7 @@ func IsLoggedIn() gin.HandlerFunc {
 type Claims struct {
 	UserEmail string
 	UserID    string
+	OfTenant  string
 }
 
 func GetAuthorized(c *gin.Context) (*Claims, error) {
@@ -55,10 +56,18 @@ func GetAuthorized(c *gin.Context) (*Claims, error) {
 		return nil, fmt.Errorf("no claims")
 	}
 
-	mapClaims := claimsInterface.(jwt.MapClaims)
+	mapClaims, ok := claimsInterface.(jwt.MapClaims)
 
+	if !ok {
+		return nil, fmt.Errorf("invalid claims type")
+	}
+	t, ok := mapClaims["ofTenant"].(string)
+	if !ok {
+		t = ""
+	}
 	return &Claims{
 		UserEmail: mapClaims["userEmail"].(string),
 		UserID:    mapClaims["userID"].(string),
+		OfTenant:  t,
 	}, nil
 }
