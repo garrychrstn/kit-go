@@ -35,7 +35,6 @@ func (c *TStorageController) GlobalUploads() gin.HandlerFunc {
 		}
 
 		isTenant := len(auth.OfTenant) != 0
-
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "invalid form"})
 			return
@@ -49,10 +48,11 @@ func (c *TStorageController) GlobalUploads() gin.HandlerFunc {
 
 		client := helpers.InitR2Client()
 		bucket := os.Getenv("OBJECT_BUCKET")
+		var prefix string
 		if isTenant {
-			bucket += "/tenants/" + auth.OfTenant
+			prefix = os.Getenv("ENVI") + "/tenants/" + auth.OfTenant
 		} else {
-			bucket += "/users/" + auth.UserID
+			prefix = os.Getenv("ENVI") + "/users/" + auth.UserID
 		}
 		type result struct {
 			Name  string `json:"name"`
@@ -74,8 +74,8 @@ func (c *TStorageController) GlobalUploads() gin.HandlerFunc {
 				}
 				defer file.Close()
 
-				key := helpers.GenerateUUID()
-
+				ext := header.Filename
+				key := prefix + "/" + helpers.GenerateUUID() + "." + ext
 				_, err = client.PutObject(context.TODO(), &s3.PutObjectInput{
 					Bucket:        aws.String(bucket),
 					Key:           aws.String(key),
@@ -103,8 +103,13 @@ func (c *TStorageController) GlobalUploads() gin.HandlerFunc {
 				uploaded = append(uploaded, r.Name)
 			}
 		}
-
-		c.JSON(http.StatusOK, gin.H{
+		var statusCode int
+		if len(failed) > 0 {
+			statusCode = 400
+		} else {
+			statusCode = http.StatusOK
+		}
+		c.JSON(statusCode, gin.H{
 			"uploaded": uploaded,
 			"failed":   failed,
 		})
